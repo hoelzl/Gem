@@ -46,6 +46,8 @@ without interruption of the system’s functionality, thereby blurring
 the distinction between design-time and run-time.
 </cite></p>
 
+<p><img src="images/gem/ensemble-04a.png" alt="robot ensemble" title="A robot swarm, but one that is unlikely to perform a real rescue mission." /></p>
+
 <p>An example of an ensemble are swarms of robots that are used for
 rescue operations: To support rescue operations after a natural
 disaster or an accident in an industrial plant we want to deploy not
@@ -154,15 +156,22 @@ possible for the simplest of systems.  Therefore it is possible to
 compose systems from simpler components: A <em>combination operator</em> is a
 function that takes multiple relations and uses them to build a new
 relation whose behavior depends (1) on the individual components and
-(2) on the combination operator itself.  For example, suppose we have
-two robots moving in an arena; each robot has its individual $x$ and
-$y$ coordinates.  However by putting them together into the same arena
-we have built a new system that has the additional constraint that the
-robots may not overlap.  In Gem a combination operator, say
-<em>put-in-arena</em> is responsible for building the relation describing the
-two-robot system from the two simpler systems describing a single
-robot each, and for enforcing the relevant constraints such as
-non-overlapping physical extents of the robots.</p>
+(2) on the combination operator itself.  Components are relations over
+the trajectory space, as is the result of the combination operator, so
+components and systems are treated identically in Gem; as a matter of
+fact both are just synonyms for relations.  This means that we can
+repeat compositions as often as necessary: The simplest components are
+composed into more complex one which can in turn be composed with
+other components or systems…</p>
+
+<p>For example, suppose we have two robots moving in an arena; each robot
+has its individual $x$ and $y$ coordinates.  However by putting them
+together into the same arena we have built a new system that has the
+additional constraint that the robots may not overlap.  In Gem a
+combination operator, say <em>put-in-arena</em> is responsible for building
+the relation describing the two-robot system from the two simpler
+systems describing a single robot each, and for enforcing the relevant
+constraints such as non-overlapping physical extents of the robots.</p>
 
 <p>If we place the two robots into an arena but connect them using a
 piece of rope, we can express this using another combination operator,
@@ -171,11 +180,47 @@ constrains the resulting relation further by excluding all
 trajectories in which the two robots are further apart than the length
 of the rope.</p>
 
+<p>A combination operator may suppress parts of the combined state
+space.  For example each robot is itself a complex system with wheels,
+tracks or legs, with sensors, actuators and processing units that
+might all be present in the model of the robot.  If these features are
+not relevant for the <em>put-in-arena</em> operator it can suppress them so
+in order to simplify the resulting system.</p>
+
+<p>While combination operators may perform arbitrary transformations of
+the relations they combine, in many cases they take output of one
+component and use it to control another component.  While relations
+themselves have no input or output, Gem models often designate certain
+arguments of a relation as inputs (labeled with a capital <em>X</em>) and as
+outputs (labeled with <em>Y</em>).  This allows modelers to graphically
+represent the data-flow in a Gem model, as in the following image:</p>
+
+<p><img src="images/gem/cascade.png" alt="Cascade" title="Simple cascade that feeds some outputs of *S_1* to *S_2*" /></p>
+
+<p>The cascade operator shown in this image simply uses one output of
+<em>S_1</em> to control one input of <em>S_2</em>.  The cascade operator thus
+removes all traces from the resulting trajectory space in which the
+connected input and output have different values at some point in
+time.</p>
+
+<p>One of the advantages of treating systems as relations is that
+feedback and loops in the system can be treated in exactly the same
+manner.  For example, the following operator generates a feedback loop
+that connects some inputs of a system <em>S</em> with some of its outputs and
+works in the same manner as the cascade operator: it removes all
+traces in which the input value of <em>X^in</em> differs from the output
+value of <em>Y^out</em> at some point of time.</p>
+
+<p><img src="images/gem/feedback.png" alt="Feedback" title="Combination operator for a feedback loop." /></p>
+
 <h3 id="network-and-environment">Network and Environment</h3>
 
 <p>So far we have only considered the system itself.  But typically
-systems are not closed, they interact with their environment.
-Therefore each Gem model includes an <em>environment</em>.  To model the
+systems are not closed, they interact with their environment.  This
+can already be seen in the above images in which some inputs and
+outputs are connected with “clouds”.</p>
+
+<p>Therefore each Gem model includes an <em>environment</em>.  To model the
 effects of the sensors and actuators on system and environment we
 often also include a <em>network</em> that mediates these interactions.  Like
 the system itself, environment and network are modeled as relations
